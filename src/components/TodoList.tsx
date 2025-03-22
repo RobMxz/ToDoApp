@@ -110,16 +110,16 @@ export const TodoList: React.FC = () => {
   const activeTodos = todos.filter(todo => !todo.completed);
 
   return (
-    <div className="min-h-screen flex items-center justify-center p-4">
-      <div className="w-full max-w-3xl">
-        <Card>
-          <CardHeader className="flex flex-row items-center justify-between">
-            <CardTitle className="text-2xl">Tareas Pendientes</CardTitle>
+    <div className="min-h-screen w-full flex items-center justify-center bg-background">
+      <div className="w-full max-w-md sm:max-w-lg md:max-w-xl lg:max-w-2xl mx-auto">
+        <Card className="rounded-none sm:rounded-lg border-0 sm:border sm:my-8">
+          <CardHeader className="flex flex-row items-center justify-between space-y-0 px-4 py-3 sm:p-6 border-b">
+            <CardTitle className="text-xl font-semibold">Tareas Pendientes</CardTitle>
             <Button
               variant="outline"
               size="icon"
               onClick={() => setIsSidebarOpen(!isSidebarOpen)}
-              className="relative"
+              className="relative h-8 w-8"
             >
               <ListTodo className="h-4 w-4" />
               {completedTodos.length > 0 && !isSidebarOpen && (
@@ -129,43 +129,45 @@ export const TodoList: React.FC = () => {
               )}
             </Button>
           </CardHeader>
-          <CardContent>
-            <form onSubmit={addTodo} className="flex items-center gap-2 mb-8">
+          <CardContent className="px-4 py-4 sm:p-6">
+            <form onSubmit={addTodo} className="flex flex-col gap-3 mb-6">
               <Input
                 type="text"
                 value={newTodo}
                 onChange={(e) => setNewTodo(e.target.value)}
                 placeholder="Agregar nueva tarea..."
-                className="flex-1"
+                className="w-full h-10"
               />
-              <Input
-                type="text"
-                value={assignedTo}
-                onChange={(e) => setAssignedTo(e.target.value)}
-                placeholder="Asignado por..."
-                className="w-40"
-              />
-              <Select value={priority} onValueChange={(value: 'low' | 'medium' | 'high') => setPriority(value)}>
-                <SelectTrigger className="w-[120px]">
-                  <SelectValue placeholder="Media" />
-                </SelectTrigger>
-                <SelectContent>
-                  <SelectItem value="low">Baja</SelectItem>
-                  <SelectItem value="medium">Media</SelectItem>
-                  <SelectItem value="high">Alta</SelectItem>
-                </SelectContent>
-              </Select>
-              <Button 
-                type="submit" 
-                size="icon" 
-                variant="outline"
-                className="h-10 w-10 rounded-sm dark:bg-white dark:hover:bg-white/90 dark:text-black bg-black hover:bg-black/90 text-white border-0"
-              >
-                <Plus className="h-4 w-4" />
-              </Button>
+              <div className="flex w-full gap-3">
+                <Input
+                  type="text"
+                  value={assignedTo}
+                  onChange={(e) => setAssignedTo(e.target.value)}
+                  placeholder="Asignado por..."
+                  className="w-[45%] h-10"
+                />
+                <Select value={priority} onValueChange={(value: 'low' | 'medium' | 'high') => setPriority(value)}>
+                  <SelectTrigger className="w-[45%] h-10">
+                    <SelectValue placeholder="Media" />
+                  </SelectTrigger>
+                  <SelectContent>
+                    <SelectItem value="low">Baja</SelectItem>
+                    <SelectItem value="medium">Media</SelectItem>
+                    <SelectItem value="high">Alta</SelectItem>
+                  </SelectContent>
+                </Select>
+                <Button 
+                  type="submit" 
+                  size="icon" 
+                  variant="outline"
+                  className="h-10 w-10 rounded-md dark:bg-white dark:hover:bg-white/90 dark:text-black bg-black hover:bg-black/90 text-white border-0 flex-shrink-0"
+                >
+                  <Plus className="h-5 w-5" />
+                </Button>
+              </div>
             </form>
 
-            <div className="space-y-2">
+            <div className="space-y-3">
               {activeTodos.map((todo) => (
                 <TodoItem
                   key={todo.id}
@@ -177,7 +179,7 @@ export const TodoList: React.FC = () => {
             </div>
           </CardContent>
           {activeTodos.length === 0 && (
-            <CardFooter className="flex justify-center">
+            <CardFooter className="flex justify-center py-4 text-sm">
               <p className="text-muted-foreground">No hay tareas pendientes</p>
             </CardFooter>
           )}
