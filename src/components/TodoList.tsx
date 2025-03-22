@@ -2,7 +2,7 @@ import React, { useState, useEffect } from 'react';
 import { Button } from './ui/button';
 import { Input } from './ui/input';
 import { Card, CardHeader, CardTitle, CardContent, CardFooter } from './ui/card';
-import { Plus, CheckCircle2, ListTodo, X } from 'lucide-react';
+import { Plus, ListTodo } from 'lucide-react';
 import {
   Select,
   SelectContent,
