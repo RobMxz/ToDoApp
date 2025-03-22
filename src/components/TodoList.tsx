@@ -2,7 +2,7 @@ import React, { useState, useEffect } from 'react';
 import { Button } from './ui/button';
 import { Input } from './ui/input';
 import { Card, CardHeader, CardTitle, CardContent, CardFooter } from './ui/card';
-import { Plus, ListTodo } from 'lucide-react';
+import { Plus, ListTodo, User } from 'lucide-react';
 import {
   Select,
   SelectContent,
@@ -20,6 +20,7 @@ interface Todo {
   priority: 'low' | 'medium' | 'high';
   createdAt: number;
   completedAt?: number;
+  assignedTo: string;
 }
 
 const STORAGE_KEY = 'todos';
@@ -37,6 +38,7 @@ export const TodoList: React.FC = () => {
 
   const [newTodo, setNewTodo] = useState('');
   const [priority, setPriority] = useState<'low' | 'medium' | 'high'>('medium');
+  const [assignedTo, setAssignedTo] = useState('');
   const [isSidebarOpen, setIsSidebarOpen] = useState(false);
 
   useEffect(() => {
@@ -51,18 +53,20 @@ export const TodoList: React.FC = () => {
     e.preventDefault();
     e.stopPropagation();
 
-    if (newTodo.trim()) {
+    if (newTodo.trim() && assignedTo.trim()) {
       const newTodoItem: Todo = {
         id: Date.now(),
         text: newTodo.trim(),
         completed: false,
         priority,
         createdAt: Date.now(),
+        assignedTo: assignedTo.trim(),
       };
       
       setTodos(currentTodos => [...currentTodos, newTodoItem]);
       setNewTodo('');
       setPriority('medium');
+      setAssignedTo('');
     }
   };
 
@@ -126,7 +130,7 @@ export const TodoList: React.FC = () => {
             </Button>
           </CardHeader>
           <CardContent>
-            <form onSubmit={addTodo} className="flex gap-2 mb-8">
+            <form onSubmit={addTodo} className="flex items-center gap-2 mb-8">
               <Input
                 type="text"
                 value={newTodo}
@@ -134,9 +138,16 @@ export const TodoList: React.FC = () => {
                 placeholder="Agregar nueva tarea..."
                 className="flex-1"
               />
+              <Input
+                type="text"
+                value={assignedTo}
+                onChange={(e) => setAssignedTo(e.target.value)}
+                placeholder="Asignado por..."
+                className="w-40"
+              />
               <Select value={priority} onValueChange={(value: 'low' | 'medium' | 'high') => setPriority(value)}>
                 <SelectTrigger className="w-[120px]">
-                  <SelectValue placeholder="Prioridad" />
+                  <SelectValue placeholder="Media" />
                 </SelectTrigger>
                 <SelectContent>
                   <SelectItem value="low">Baja</SelectItem>
@@ -144,7 +155,12 @@ export const TodoList: React.FC = () => {
                   <SelectItem value="high">Alta</SelectItem>
                 </SelectContent>
               </Select>
-              <Button type="submit" size="icon">
+              <Button 
+                type="submit" 
+                size="icon" 
+                variant="outline"
+                className="h-10 w-10 rounded-sm dark:bg-white dark:hover:bg-white/90 dark:text-black bg-black hover:bg-black/90 text-white border-0"
+              >
                 <Plus className="h-4 w-4" />
               </Button>
             </form>
