@@ -1,7 +1,8 @@
 import React from 'react';
 import { Card, CardTitle } from './ui/card';
-import { CheckCircle2, X, User } from 'lucide-react';
+import { CheckCircle2, X, User, Calendar, Clock } from 'lucide-react';
 import { Button } from './ui/button';
+import { ScrollArea } from './ui/scroll-area';
 
 interface Todo {
   id: number;
@@ -26,6 +27,22 @@ export const CompletedTasksSidebar: React.FC<CompletedTasksSidebarProps> = ({
   onClose,
   getCompletionTime,
 }) => {
+  // Ordenar las tareas por fecha de completado (más recientes primero)
+  const sortedCompletedTodos = [...completedTodos].sort((a, b) => {
+    if (!a.completedAt || !b.completedAt) return 0;
+    return b.completedAt - a.completedAt;
+  });
+
+  const formatDate = (timestamp: number) => {
+    return new Date(timestamp).toLocaleDateString('es-ES', {
+      day: '2-digit',
+      month: '2-digit',
+      year: '2-digit',
+      hour: '2-digit',
+      minute: '2-digit'
+    });
+  };
+
   return (
     <div
       className={`fixed right-0 top-0 h-full bg-background border-l shadow-lg transition-transform duration-300 ease-in-out ${
@@ -39,38 +56,47 @@ export const CompletedTasksSidebar: React.FC<CompletedTasksSidebarProps> = ({
             <X className="h-4 w-4" />
           </Button>
         </div>
-        <div className="flex-1 overflow-y-auto p-4">
-          <div className="space-y-4">
-            {completedTodos.map((todo) => (
-              <Card key={todo.id} className="p-3">
-                <div className="flex items-start sm:items-center gap-2">
-                  <CheckCircle2 className="h-5 w-5 text-green-500 mt-0.5 sm:mt-0" />
-                  <div className="flex-1 min-w-0">
-                    <div className="flex flex-col sm:flex-row sm:items-center gap-1 sm:gap-2">
-                      <p className="text-sm line-through text-muted-foreground break-words">
-                        {todo.text}
-                      </p>
-                      <div className="flex items-center gap-1 text-xs text-muted-foreground">
-                        <User className="h-3 w-3 flex-shrink-0" />
-                        <span className="truncate">{todo.assignedTo}</span>
+        <ScrollArea className="flex-1">
+          <div className="p-4">
+            <div className="space-y-4">
+              {sortedCompletedTodos.map((todo) => (
+                <Card key={todo.id} className="p-3">
+                  <div className="flex items-start sm:items-center gap-2">
+                    <CheckCircle2 className="h-5 w-5 text-green-500 mt-0.5 sm:mt-0" />
+                    <div className="flex-1 min-w-0">
+                      <div className="flex flex-col sm:flex-row sm:items-center gap-1 sm:gap-2">
+                        <p className="text-sm line-through text-muted-foreground break-words">
+                          {todo.text}
+                        </p>
+                        <div className="flex items-center gap-1 text-xs text-muted-foreground">
+                          <User className="h-3 w-3 flex-shrink-0" />
+                          <span className="truncate">{todo.assignedTo}</span>
+                        </div>
+                      </div>
+                      <div className="flex flex-col gap-1 mt-2 text-xs text-muted-foreground">
+                        <div className="flex items-center gap-1">
+                          <Calendar className="h-3 w-3" />
+                          <span>Creada: {formatDate(todo.createdAt)}</span>
+                        </div>
+                        {todo.completedAt && (
+                          <div className="flex items-center gap-1">
+                            <Clock className="h-3 w-3" />
+                            <span>Tiempo en completar: {getCompletionTime(todo.createdAt, todo.completedAt)}</span>
+                          </div>
+                        )}
                       </div>
                     </div>
-                    {todo.completedAt && (
-                      <p className="text-xs text-muted-foreground mt-1">
-                        Completada en {getCompletionTime(todo.createdAt, todo.completedAt)}
-                      </p>
-                    )}
                   </div>
-                </div>
-              </Card>
-            ))}
-            {completedTodos.length === 0 && (
-              <p className="text-center text-muted-foreground">
-                No hay tareas completadas
-              </p>
-            )}
+                </Card>
+              ))}
+              {completedTodos.length === 0 && (
+                <p className="text-center text-muted-foreground">
+                  No hay tareas completadas
+                </p>
+              )}
+            </div>
           </div>
-        </div>
+        </ScrollArea>
       </div>
     </div>
   );
