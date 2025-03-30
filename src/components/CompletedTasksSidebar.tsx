@@ -1,6 +1,6 @@
 import React from 'react';
 import { Card, CardTitle } from './ui/card';
-import { CheckCircle2, X, User, Calendar, Clock } from 'lucide-react';
+import { CheckCircle2, X, User, Calendar, Clock, Download } from 'lucide-react';
 import { Button } from './ui/button';
 import { ScrollArea } from './ui/scroll-area';
 
@@ -43,6 +43,73 @@ export const CompletedTasksSidebar: React.FC<CompletedTasksSidebarProps> = ({
     });
   };
 
+  const formatDateForCSV = (timestamp: number) => {
+    const date = new Date(timestamp);
+    return {
+      date: date.toLocaleDateString('es-ES', {
+        day: '2-digit',
+        month: '2-digit',
+        year: 'numeric'
+      }),
+      time: date.toLocaleTimeString('es-ES', {
+        hour: '2-digit',
+        minute: '2-digit'
+      })
+    };
+  };
+
+  const exportToCSV = () => {
+    // Crear el contenido del CSV
+    const headers = [
+      'Tarea',
+      'Asignado a',
+      'Prioridad',
+      'Fecha de Creación',
+      'Hora de Creación',
+      'Fecha de Completado',
+      'Hora de Completado',
+      'Tiempo en Completar (minutos)'
+    ];
+
+    const rows = sortedCompletedTodos.map(todo => {
+      const createdDateTime = formatDateForCSV(todo.createdAt);
+      const completedDateTime = todo.completedAt ? formatDateForCSV(todo.completedAt) : { date: '', time: '' };
+      
+      // Calcular tiempo en minutos para compatibilidad con Python
+      const timeInMinutes = todo.completedAt 
+        ? Math.round((todo.completedAt - todo.createdAt) / (1000 * 60))
+        : '';
+
+      return [
+        todo.text,
+        todo.assignedTo,
+        todo.priority,
+        createdDateTime.date,
+        createdDateTime.time,
+        completedDateTime.date,
+        completedDateTime.time,
+        timeInMinutes
+      ];
+    });
+
+    // Convertir a formato CSV
+    const csvContent = [
+      headers.join(','),
+      ...rows.map(row => row.map(cell => `"${cell}"`).join(','))
+    ].join('\n');
+
+    // Crear y descargar el archivo
+    const blob = new Blob([csvContent], { type: 'text/csv;charset=utf-8;' });
+    const link = document.createElement('a');
+    const url = URL.createObjectURL(blob);
+    link.setAttribute('href', url);
+    link.setAttribute('download', `tareas_completadas_${formatDate(Date.now())}.csv`);
+    link.style.visibility = 'hidden';
+    document.body.appendChild(link);
+    link.click();
+    document.body.removeChild(link);
+  };
+
   return (
     <div
       className={`fixed right-0 top-0 h-full bg-background border-l shadow-lg transition-transform duration-300 ease-in-out ${
@@ -52,9 +119,22 @@ export const CompletedTasksSidebar: React.FC<CompletedTasksSidebarProps> = ({
       <div className="h-full flex flex-col">
         <div className="flex items-center justify-between p-4 border-b">
           <CardTitle className="text-xl">Tareas Completadas</CardTitle>
-          <Button variant="ghost" size="icon" onClick={onClose}>
-            <X className="h-4 w-4" />
-          </Button>
+          <div className="flex items-center gap-2">
+            {completedTodos.length > 0 && (
+              <Button
+                variant="ghost"
+                size="icon"
+                onClick={exportToCSV}
+                className="h-8 w-8"
+                title="Exportar a CSV"
+              >
+                <Download className="h-4 w-4" />
+              </Button>
+            )}
+            <Button variant="ghost" size="icon" onClick={onClose}>
+              <X className="h-4 w-4" />
+            </Button>
+          </div>
         </div>
         <ScrollArea className="flex-1">
           <div className="p-4">

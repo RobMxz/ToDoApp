@@ -2,7 +2,7 @@ import React, { useState, useEffect } from 'react';
 import { Button } from './ui/button';
 import { Input } from './ui/input';
 import { Card, CardHeader, CardTitle, CardContent, CardFooter } from './ui/card';
-import { Plus, ListTodo } from 'lucide-react';
+import { Plus, ListTodo, BarChart3 } from 'lucide-react';
 import {
   Select,
   SelectContent,
@@ -12,6 +12,7 @@ import {
 } from "./ui/select";
 import { TodoItem } from './TodoItem';
 import { CompletedTasksSidebar } from './CompletedTasksSidebar';
+import { TaskStats } from './TaskStats';
 
 interface Todo {
   id: number;
@@ -40,6 +41,7 @@ export const TodoList: React.FC = () => {
   const [priority, setPriority] = useState<'low' | 'medium' | 'high'>('medium');
   const [assignedTo, setAssignedTo] = useState('');
   const [isSidebarOpen, setIsSidebarOpen] = useState(false);
+  const [showStats, setShowStats] = useState(false);
 
   useEffect(() => {
     try {
@@ -110,75 +112,92 @@ export const TodoList: React.FC = () => {
   const activeTodos = todos.filter(todo => !todo.completed);
 
   return (
-    <div className="min-h-screen w-full flex items-center justify-center bg-background">
+    <div className="min-h-screen w-full flex items-start justify-center bg-background">
       <div className="w-full max-w-md sm:max-w-lg md:max-w-xl lg:max-w-2xl mx-auto">
         <Card className="rounded-none sm:rounded-lg border-0 sm:border sm:my-8">
           <CardHeader className="flex flex-row items-center justify-between space-y-0 px-4 py-3 sm:p-6 border-b">
             <CardTitle className="text-xl font-semibold">Tareas Pendientes</CardTitle>
-            <Button
-              variant="outline"
-              size="icon"
-              onClick={() => setIsSidebarOpen(!isSidebarOpen)}
-              className="relative h-8 w-8"
-            >
-              <ListTodo className="h-4 w-4" />
-              {completedTodos.length > 0 && !isSidebarOpen && (
-                <span className="absolute -top-1 -right-1 bg-primary text-primary-foreground rounded-full w-5 h-5 text-xs flex items-center justify-center">
-                  {completedTodos.length}
-                </span>
-              )}
-            </Button>
+            <div className="flex items-center gap-2">
+              <Button
+                variant="outline"
+                size="icon"
+                onClick={() => setShowStats(!showStats)}
+                className="relative"
+                title="Ver estadísticas"
+              >
+                <BarChart3 className="h-4 w-4" />
+              </Button>
+              <Button
+                variant="outline"
+                size="icon"
+                onClick={() => setIsSidebarOpen(!isSidebarOpen)}
+                className="relative"
+              >
+                <ListTodo className="h-4 w-4" />
+                {completedTodos.length > 0 && !isSidebarOpen && (
+                  <span className="absolute -top-1 -right-1 bg-primary text-primary-foreground rounded-full w-5 h-5 text-xs flex items-center justify-center">
+                    {completedTodos.length}
+                  </span>
+                )}
+              </Button>
+            </div>
           </CardHeader>
           <CardContent className="px-4 py-4 sm:p-6">
-            <form onSubmit={addTodo} className="flex flex-col gap-3 mb-6">
-              <Input
-                type="text"
-                value={newTodo}
-                onChange={(e) => setNewTodo(e.target.value)}
-                placeholder="Agregar nueva tarea..."
-                className="w-full h-10"
-              />
-              <div className="flex w-full gap-3">
-                <Input
-                  type="text"
-                  value={assignedTo}
-                  onChange={(e) => setAssignedTo(e.target.value)}
-                  placeholder="Asignado por..."
-                  className="w-[45%] h-10"
-                />
-                <Select value={priority} onValueChange={(value: 'low' | 'medium' | 'high') => setPriority(value)}>
-                  <SelectTrigger className="w-[45%] h-10">
-                    <SelectValue placeholder="Media" />
-                  </SelectTrigger>
-                  <SelectContent>
-                    <SelectItem value="low">Baja</SelectItem>
-                    <SelectItem value="medium">Media</SelectItem>
-                    <SelectItem value="high">Alta</SelectItem>
-                  </SelectContent>
-                </Select>
-                <Button 
-                  type="submit" 
-                  size="icon" 
-                  variant="outline"
-                  className="h-10 w-10 rounded-md dark:bg-white dark:hover:bg-white/90 dark:text-black bg-black hover:bg-black/90 text-white border-0 flex-shrink-0"
-                >
-                  <Plus className="h-5 w-5" />
-                </Button>
-              </div>
-            </form>
+            {showStats ? (
+              <TaskStats todos={todos} />
+            ) : (
+              <>
+                <form onSubmit={addTodo} className="flex flex-col gap-3 mb-6">
+                  <Input
+                    type="text"
+                    value={newTodo}
+                    onChange={(e) => setNewTodo(e.target.value)}
+                    placeholder="Agregar nueva tarea..."
+                    className="w-full h-10"
+                  />
+                  <div className="flex w-full gap-3">
+                    <Input
+                      type="text"
+                      value={assignedTo}
+                      onChange={(e) => setAssignedTo(e.target.value)}
+                      placeholder="Asignado por..."
+                      className="w-[45%] h-10"
+                    />
+                    <Select value={priority} onValueChange={(value: 'low' | 'medium' | 'high') => setPriority(value)}>
+                      <SelectTrigger className="w-[45%] h-10">
+                        <SelectValue placeholder="Media" />
+                      </SelectTrigger>
+                      <SelectContent>
+                        <SelectItem value="low">Baja</SelectItem>
+                        <SelectItem value="medium">Media</SelectItem>
+                        <SelectItem value="high">Alta</SelectItem>
+                      </SelectContent>
+                    </Select>
+                    <Button 
+                      type="submit" 
+                      size="icon" 
+                      variant="outline"
+                      className="h-10 w-10 rounded-md dark:bg-white dark:hover:bg-white/90 dark:text-black bg-black hover:bg-black/90 text-white border-0 flex-shrink-0"
+                    >
+                      <Plus className="h-5 w-5" />
+                    </Button>
+                  </div>
+                </form>
 
-            <div className="space-y-3">
-              {activeTodos.map((todo) => (
-                <TodoItem
-                  key={todo.id}
-                  todo={todo}
-                  onToggle={toggleTodo}
-                  onDelete={deleteTodo}
-                />
-              ))}
-            </div>
+                <div className="space-y-3">
+                  {activeTodos.map((todo) => (
+                    <TodoItem
+                      key={todo.id}
+                      todo={todo}
+                      onToggle={toggleTodo}
+                      onDelete={deleteTodo}
+                    />
+                  ))}
+                </div>
+              </>
+            )}
           </CardContent>
-          {activeTodos.length === 0 && (
+          {!showStats && activeTodos.length === 0 && (
             <CardFooter className="flex justify-center py-4 text-sm">
               <p className="text-muted-foreground">No hay tareas pendientes</p>
             </CardFooter>
